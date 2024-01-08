@@ -3,7 +3,7 @@ from discord.ext import commands, tasks
 from functions import *
 
 prefix = "!"
-token = 'MTAyNjQzMzEzMTAzODkwMDI1NQ.G2XZ1r.wiWuGt9MNLBlSgtTlonluR4mniQMVsZvM3miUc'
+token = ''
 
 bot = commands.Bot(command_prefix=prefix, intents=discord.Intents.all())
 current_board = []
