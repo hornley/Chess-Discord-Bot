@@ -3,22 +3,19 @@ from discord.ext import commands, tasks
 from functions import *
 
 prefix = "!"
-token = 'MTAyNjQzMzEzMTAzODkwMDI1NQ.G2XZ1r.wiWuGt9MNLBlSgtTlonluR4mniQMVsZvM3miUc'
+token = 'MTE3NDcyMDI1MzE0NjcxMDEzNw.GVQjBd.e41IdmyZTT9oatBZr8hHpcR5x_kyw4bBlwyo6o'
 
 bot = commands.Bot(command_prefix=prefix, intents=discord.Intents.all())
 current_board = []
 ongoing_game = {}
-'''
-
-'''
 
 
 async def print_board(channel, cur_board):
-    x = 1
+    x = 8
     for _x in cur_board:
         _ = ""
         _ += nums.get(f"number_{x}")
-        x += 1
+        x -= 1
         for square in _x:
             _ += square.icon_id if isinstance(square, ChessPiece) else square
         await channel.send(_)
@@ -61,13 +58,14 @@ async def play(ctx, to_move, where):
         row = 8 - int(to_move[1])
         chosen_col = letters_dict[where[0]] - 1
         chosen_row = 8 - int(where[1])
-        chosen_piece = current_board[row][col]
+        chosen_piece: ChessPiece = current_board[row][col]
         chosen_square = current_board[chosen_row][chosen_col]
 
         if not legal_move(chosen_piece, current_board, (row, col, to_move), (chosen_row, chosen_col, where)):
             await channel.send("Illegal Move!")
         else:
             current_board[chosen_row][chosen_col] = chosen_piece
+            chosen_piece.position, chosen_piece.first_move = where, False
             current_board[row][col] = white_square if ((row % 2 == 1 and col % 2 == 1) or
                                                        (row % 2 == 0 and col % 2 == 0)) else black_square
             await channel.purge()

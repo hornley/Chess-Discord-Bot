@@ -24,10 +24,6 @@ class ChessPiece:
 
 class Pawn(ChessPiece):
     def move(self, pos1, pos2):
-        # If column is not same, therefore it is an invalid move and same value of pos1 and pos2
-        if pos1[0] != pos2[0] or pos1 == pos2:
-            return False
-
         pos1_row, pos2_row = abs(8 - int(pos1[1])), abs(8 - int(pos2[1]))
         move = abs(pos1_row - pos2_row)
 
@@ -35,20 +31,17 @@ class Pawn(ChessPiece):
         if move == 2 and not self.first_move or move > 2:
             return False
 
-        self.position = pos2
-        self.first_move = False
+        if move == 1 and pos1[0] != pos2[0]:
+            return True
 
         return True
 
 
 class Rook(ChessPiece):
     def move(self, pos1, pos2):
-        # For non-horizontal/vertical moves or for same value of pos1 and pos2
+        # For non-horizontal/vertical moves
         if (pos1[0] != pos2[0] and pos1[1] != pos2[1]) or (pos1[0] == pos2[0] and pos1[1] == pos2[1]):
             return False
-
-        self.position = pos2
-        self.first_move = False
 
         return True
 
@@ -74,9 +67,6 @@ class Bishop(ChessPiece):
         if (pos2_row, pos2_col) not in getDiagonal(pos1_row, pos1_col):
             return False
 
-        self.position = pos2
-        self.first_move = False
-
         return True
 
 
@@ -99,9 +89,6 @@ class Knight(ChessPiece):
         if (pos2_row, pos2_col) not in possible_knight_moves:
             return False
 
-        self.position = pos2
-        self.first_move = False
-
         return True
 
 
@@ -116,9 +103,6 @@ class Queen(ChessPiece):
 
         if (pos2_row, pos2_col) in getDiagonal(pos1_row, pos1_col):
             return True
-
-        self.position = pos2
-        self.first_move = False
 
         return False
 
@@ -137,8 +121,5 @@ class King(ChessPiece):
 
         if (pos2_row, pos2_col) not in possible_king_moves:
             return False
-
-        self.position = pos2
-        self.first_move = False
 
         return True

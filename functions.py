@@ -10,7 +10,7 @@ chess_pieces = {'black': {'rook': '<:blackrook:1188399333670920232>', 'knight': 
 nums = {'number_1': '1️⃣', 'number_2': '2️⃣', 'number_3': '3️⃣', 'number_4': '4️⃣',
         'number_5': '5️⃣', 'number_6': '6️⃣', 'number_7': '7️⃣', 'number_8': '8️⃣', }
 blank = ['🟦', ':regional_indicator_a:', ':regional_indicator_b:', ':regional_indicator_c:', ':regional_indicator_d:',
-         ':regional_indicator_e:', ':regional_indicator_f:', ':regional_indicator_g:', ':regional_indicator_h!:']
+         ':regional_indicator_e:', ':regional_indicator_f:', ':regional_indicator_g:', ':regional_indicator_h:']
 white_square = '⬜'
 black_square = '⬛'
 names = ["pawn", "bishop", "knight", "rook", "queen", "king"]
@@ -111,14 +111,20 @@ def legal_move(chosen_piece: ChessPiece, board, pos1, pos2):
     if occupied and board[pos2[0]][pos2[1]].color == chosen_piece.color:
         return False
 
+    # For same values of pos1 and pos2
+    if pos1 == pos2:
+        return False
+
     move_result = chosen_piece.move(pos1[2], pos2[2])
 
     # Pawn move issue in TO-DO File
-    if role in ['pawn', 'knight', 'king']:
+    if role in ['knight', 'king']:
         return move_result
 
-    # elif role == 'pawn':
-    #     return move_result
+    elif role == 'pawn':
+        if occupied and pos1[1] == pos2[1]:
+            return False
+        return move_result
 
     elif role == 'rook':
         return move_result and valid_rook_move(board, pos1, pos2)
@@ -126,7 +132,6 @@ def legal_move(chosen_piece: ChessPiece, board, pos1, pos2):
     elif role == 'bishop':
         return move_result and valid_bishop_move(board, pos1, pos2)
 
-    # Queen Move issue!
     return move_result and (valid_bishop_move(board, pos1, pos2) if (pos2[0], pos2[1]) in getDiagonal(pos1[0], pos1[1])
                             else valid_rook_move(board, pos1, pos2))
 
