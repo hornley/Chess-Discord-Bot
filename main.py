@@ -1,16 +1,17 @@
 import discord
 from discord.ext import commands, tasks
 from functions import *
+import os
+from dotenv import load_dotenv
+
+# Load the dotenv file
+load_dotenv()
 
 prefix = "!"
-token = 'MTAyNjQzMzEzMTAzODkwMDI1NQ.G2XZ1r.wiWuGt9MNLBlSgtTlonluR4mniQMVsZvM3miUc'
 
 bot = commands.Bot(command_prefix=prefix, intents=discord.Intents.all())
 current_board = []
 ongoing_game = {}
-'''
-
-'''
 
 
 async def print_board(channel, cur_board):
@@ -106,7 +107,7 @@ async def end(ctx):
     await channel.delete()
 
 
-bot.run(token)
+bot.run(os.getenv('TOKEN'))
 
 '''
 ⬜⬛⬜⬛⬜⬛⬜⬛
