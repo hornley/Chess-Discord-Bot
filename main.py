@@ -1,6 +1,7 @@
 import discord
 from discord.ext import commands, tasks
 from functions import *
+from errors import *
 import os
 from dotenv import load_dotenv
 
@@ -12,20 +13,6 @@ prefix = "!"
 bot = commands.Bot(command_prefix=prefix, intents=discord.Intents.all())
 ongoing_game = {}
 roles_id = []
-'''
-ongoing_game
-role_id: {
-            player_1_id: 'white',
-            player_2_id: 'black,
-            moves: 0,
-            channel: '',
-            board: [],
-            setting: {
-                private_game: True/False,
-                status: 'ongoing/done/paused'
-            }
-          }
-'''
 
 
 async def print_board(channel, cur_board, moves):
@@ -66,7 +53,7 @@ async def ping(ctx):
 
 
 @bot.command()
-async def chess(ctx, player2: discord.Member, color: str = 'White', private: bool = False):
+async def chess(ctx, player2: discord.Member, private: bool = False, player_color: str = 'White'):
     current_board = []
     for i in range(1, 9):
         row = []
@@ -82,14 +69,17 @@ async def chess(ctx, player2: discord.Member, color: str = 'White', private: boo
         current_board.append(row)
 
     role: discord.Role = await ctx.guild.create_role(name=f"Chess: {ctx.author.name} vs {player2.name}")
-    channel = await ctx.guild.create_text_channel(f"Chess: {ctx.author.name} vs {player2.name}")
+    channel: discord.TextChannel = await ctx.guild.create_text_channel(f"chess {ctx.author.name} vs {player2.name}")
+    if private:
+        await channel.set_permissions(ctx.guild.default_role, view_channel=False)
+        await channel.set_permissions(role, view_channel=True)
     await player2.add_roles(role)
     await ctx.author.add_roles(role)
     ongoing_game[role.id] = {
-        ctx.author.id: color,
-        player2.id: 'Black' if color == 'White' else 'White',
+        ctx.author.id: player_color,
+        player2.id: 'Black' if player_color == 'White' else 'White',
         'moves': 0,
-        'channel': channel,
+        'channel': channel.id,
         'board': current_board,
         'private': private,
         'status': 'ongoing'
@@ -103,14 +93,25 @@ async def chess(ctx, player2: discord.Member, color: str = 'White', private: boo
 @bot.command()
 async def move(ctx, to_move, where):
     x = await get_info(ctx)
-    channel, current_board = ongoing_game[x]['channel'], ongoing_game[x]['board']
-    if current_board:
+    channel, current_board = bot.get_channel(ongoing_game[x]['channel']), ongoing_game[x]['board']
+    turn = 'White' if ongoing_game[x]['moves'] % 2 == 0 else 'Black'
+    if ctx.author.id not in ongoing_game[x]:
+        await channel.send("You are not a player of this game!")
+        return
+
+    elif ongoing_game[x][ctx.author.id] != turn:
+        await channel.send("It is not your turn yet!")
+
+    elif current_board and ongoing_game[x][ctx.author.id] == turn:
         col = letters_dict[to_move[0]] - 1
         row = 8 - int(to_move[1])
         chosen_col = letters_dict[where[0]] - 1
         chosen_row = 8 - int(where[1])
         chosen_piece = current_board[row][col]
-        if not legal_move(chosen_piece, current_board, (row, col, to_move), (chosen_row, chosen_col, where)):
+        if to_move == where:
+            await same_move(channel, to_move, where)
+
+        elif not legal_move(chosen_piece, current_board, (row, col, to_move), (chosen_row, chosen_col, where)):
             await channel.send("Illegal Move!")
         else:
             ongoing_game[x]['moves'] += 1
@@ -126,7 +127,7 @@ async def move(ctx, to_move, where):
 @bot.command()
 async def remove(ctx, square):
     x = await get_info(ctx)
-    channel, current_board = ongoing_game[x]['channel'], ongoing_game[x]['board']
+    channel, current_board = bot.get_channel(ongoing_game[x]['channel']), ongoing_game[x]['board']
     col = letters_dict[square[0]] - 1
     row = 8 - int(square[1])
     current_board[row][col] = white_square if ((row % 2 == 1 and col % 2 == 1) or
@@ -136,11 +137,22 @@ async def remove(ctx, square):
 
 
 @bot.command()
-async def end(ctx):
+async def finish(ctx):
     _ = await get_info(ctx)
-    channel = ongoing_game[_]['channel']
+    channel = bot.get_channel(ongoing_game[_]['channel'])
+    role: discord.Role = discord.utils.get(ctx.guild.roles, id=_)
+    ongoing_game.pop(_)
 
+    await role.delete()
     await channel.delete()
 
+
+@bot.command()
+async def test(ctx):
+    x = await get_info(ctx)
+    current_board = ongoing_game[x]['board']
+    print(current_board[0][0])
+
+    await ctx.send("XXX")
 
 bot.run(os.getenv('TOKEN'))

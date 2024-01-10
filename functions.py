@@ -51,8 +51,8 @@ def get_square_color(pos2_row, pos2_col):
 def boardRows(i, color):
     row = []
     letters = list(letters_dict.keys())
+    i = 9 - i
     if i in [1, 8]:
-        i = 9 - i
         for letter in letters:
             if letter in ('a', 'h'):
                 row.append(assign_piece(color, 'rook', f"{letter}{i}"))
@@ -65,7 +65,6 @@ def boardRows(i, color):
             else:
                 row.append(assign_piece(color, 'king', f"{letter}{i}"))
     else:
-        i = 9 - i
         for letter in letters:
             row.append(assign_piece(color, 'pawn', f"{letter}{i}"))
     return row
