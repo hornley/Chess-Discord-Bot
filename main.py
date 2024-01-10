@@ -35,6 +35,7 @@ async def print_board(channel, cur_board, moves):
                 _ += square.icon_id if isinstance(square, ChessPiece) else square
             await channel.send(_)
     await channel.send(''.join(j for j in blank))
+    await channel.send("Use !move <from> <to>")
 
 
 async def get_info(ctx):
@@ -118,7 +119,6 @@ async def move(ctx, to_move, where):
             current_board[chosen_row][chosen_col] = chosen_piece
             current_board[row][col] = white_square if ((row % 2 == 1 and col % 2 == 1) or
                                                        (row % 2 == 0 and col % 2 == 0)) else black_square
-            await channel.purge()
             await print_board(channel, current_board, ongoing_game[x]['moves'])
     else:
         await channel.send("Board not yet generated!!")
@@ -132,7 +132,6 @@ async def remove(ctx, square):
     row = 8 - int(square[1])
     current_board[row][col] = white_square if ((row % 2 == 1 and col % 2 == 1) or
                                                (row % 2 == 0 and col % 2 == 0)) else black_square
-    await channel.purge()
     await print_board(channel, current_board, 0)
 
 

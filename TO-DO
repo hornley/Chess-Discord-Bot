@@ -2,8 +2,6 @@ Chess TO-DO:
 
 Optional:
 > !save command to save the game for another time (!continue and paste the given data)
-> Only the players can move their pieces, 2 player per board and of their own color
-> Private-channel or not option when starting a game
 > Flip board for the black player - move based
 
 Errors to be added:
@@ -12,3 +10,7 @@ Errors to be added:
 > Move will be on another piece of the same color (a.k.a. no friendly fire bitch)
 > Given move is not within a to h or 1 - 8 (i.e. 'b9')
 > Chosen square is not a piece or does not have a piece on it (i.e. !play a4 a5, but a4 is an empty square)
+
+Done:
+> Only the players can move their pieces, 2 player per board and of their own color
+> Private-channel or not option when starting a game
